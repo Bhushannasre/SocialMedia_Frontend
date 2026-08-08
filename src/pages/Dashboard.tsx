@@ -1,5 +1,5 @@
-import { CheckCircleIcon, ClockIcon, Share2Icon, TrendingUpIcon } from "lucide-react";
-import { useState } from "react";
+import { ActivityIcon, CheckCircleIcon, ClockIcon, SendIcon, Share2Icon, TrendingUpIcon } from "lucide-react";
+import { useEffect, useState } from "react";
 
 function Dashboard() {
   const [stats, setStats] = useState({
@@ -10,6 +10,38 @@ function Dashboard() {
     connectedAccounts: 0,
   });
   const [activities, setActivities] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        // TODO: replace these with real API calls, e.g.:
+        // const [postsRes, accountsRes, activityRes] = await Promise.all([
+        //   api.get("/posts"),
+        //   api.get("/accounts"),
+        //   api.get("/activity"),
+        // ]);
+        const [postsRes, accountsRes, activityRes] = [
+          { data: [] as any[] }, // dummyPostsData
+          { data: [] as any[] }, // dummyAccountsData
+          { data: [] as any[] }, // dummyActivityData
+        ];
+
+        const posts = postsRes.data;
+        setStats({
+          scheduled: posts.filter((post: any) => post.status === "scheduled").length,
+          published: posts.filter((post: any) => post.status === "published").length,
+          failed: posts.filter((post: any) => post.status === "failed").length,
+          total: posts.length,
+          connectedAccounts: accountsRes.data.filter((a: any) => a.status === "connected").length,
+        });
+        setActivities(activityRes.data);
+      } catch (error: any) {
+        console.log("Error fetching dashboard data:", error.message);
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
 
   const statCards = [
     {
@@ -63,20 +95,49 @@ function Dashboard() {
           </div>
         ))}
       </div>
+
       {/* Activity feed */}
       <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
-         <h2 className="text-slate-900">Recent Activity</h2>
-            <span className="text-sm text-slate-400 ">{activities.length} events</span>
-
+          <h2 className="text-slate-900">Recent Activity</h2>
+          <span className="text-sm text-slate-400">{activities.length} events</span>
         </div>
-        {activities.length === 0 ? (    
-            <div><div>
-                
-        ):(
-            <div></div>
-        )}
 
+        {activities.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-16 px-6">
+            <div className="size-12 bg-slate-100 rounded-xl flex items-center justify-center mb-3">
+              <ActivityIcon className="size-6 text-slate-400" />
+            </div>
+            <p className="text-slate-500">No Activity to Show</p>
+            <p className="text-slate-400 text-sm mt-1">
+              Connect accounts and schedule posts to see activity here.
+            </p>
+          </div>
+        ) : (
+          <div className="divide-y divide-slate-50">
+            {activities.map((activity) => (
+              <div
+                key={activity._id}
+                className="flex items-start gap-4 px-6 py-4 hover:bg-slate-50/50 transition-colors"
+              >
+                <div className="size-9 rounded-xl flex items-center justify-center shrink-0 mt-0.5 bg-zinc-100 text-zinc-600">
+                  <SendIcon className="size-4" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between gap-2 mb-1">
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-zinc-100 text-zinc-600">
+                      Published
+                    </span>
+                    <span className="text-xs text-slate-400 shrink-0">
+                      {new Date(activity.createdAt).toLocaleDateString()}
+                    </span>
+                  </div>
+                  <p className="text-slate-600 text-sm">{activity.description}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
