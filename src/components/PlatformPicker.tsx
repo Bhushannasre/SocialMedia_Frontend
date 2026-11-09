@@ -102,19 +102,19 @@ const PlatformPickerModal = ({
         {/* Platform list */}
         <div className="p-6 flex flex-col gap-2 max-h-[70vh] overflow-y-auto">
           {PLATFORMS.map((platform) => {
-            const isConnected = connectedIds.includes(platform.value);
-            const isConnecting = connecting === platform.value;
+            const isConnected = connectedIds.includes(platform.id);
+            const isConnecting = connecting === platform.id;
 
             return (
               <button
-                key={platform.value}
+                key={platform.id}
                 className={`flex items-center gap-4 p-3 rounded-lg border text-left transition-all ${
                   isConnected
                     ? "bg-slate-100 border-slate-200"
                     : "bg-white border-slate-200 hover:bg-slate-50"
                 }`}
                 disabled={isConnected || isConnecting}
-                onClick={() => onConnect(platform.value)}
+                onClick={() => onConnect(platform.id)}
               >
                 {/* Icon */}
                 <div className="size-12 bg-slate-50 rounded-xl flex items-center justify-center shrink-0">
